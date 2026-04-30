@@ -12,6 +12,13 @@ class User {
     return rows.map(({ id, name }) => new User(id, name))
   }
 
+  static async findById(id) {
+    const db = getDB()
+    const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id])
+    if (!rows.length) return null
+    return new User(rows[0].id, rows[0].name)
+  }
+
   static async create({ name }) {
     const db = getDB()
     const [result] = await db.query('INSERT INTO users (name) VALUES (?)', [name])
@@ -21,7 +28,8 @@ class User {
   static async update(id, { name }) {
     const db = getDB()
     const [result] = await db.query('UPDATE users SET name = ? WHERE id = ?', [name, id])
-    return result.affectedRows
+    if (!result.affectedRows) return null
+    return this.findById(id)
   }
 
   static async delete(id) {

@@ -2,12 +2,14 @@ import express from 'express'
 import { initDB } from './src/config/db.js'
 import userController from './src/controllers/UserController.js'
 import userRoutes from './src/routes/userRoutes.js'
+import productRoutes from './src/routes/productRoutes.js'
 
 const app = express()
 app.use(express.json())
 
 app.get('/', userController.welcome.bind(userController))
 app.use('/users', userRoutes)
+app.use('/products', productRoutes)
 
 async function startServer() {
   try {

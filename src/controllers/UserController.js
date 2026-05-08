@@ -1,5 +1,5 @@
 import BaseController from './BaseController.js'
-import User from '../models/User.js'
+import UserService from '../services/UserService.js'
 
 class UserController extends BaseController {
   async welcome(req, res) {
@@ -8,7 +8,7 @@ class UserController extends BaseController {
 
   async getUsers(req, res) {
     try {
-      const users = await User.findAll()
+      const users = await UserService.getUsers()
       return this.success(res, 'Users retrieved successfully', users)
     } catch (error) {
       console.error(error)
@@ -18,28 +18,18 @@ class UserController extends BaseController {
 
   async createUser(req, res) {
     try {
-      const { name } = req.body
-      if (!name) {
-        return this.error(res, 'Name is required', 400)
-      }
-
-      const user = await User.create({ name })
+      const user = await UserService.createUser(req.body)
       return this.success(res, 'User created', user, 201)
     } catch (error) {
       console.error(error)
-      return this.error(res, 'Failed to create user', 500)
+      return this.error(res, error.message || 'Failed to create user', 500)
     }
   }
 
   async updateUser(req, res) {
     try {
       const { id } = req.params
-      const { name } = req.body
-      if (!name) {
-        return this.error(res, 'Name is required', 400)
-      }
-
-      const updatedUser = await User.update(id, { name })
+      const updatedUser = await UserService.updateUser(id, req.body)
       if (!updatedUser) {
         return this.error(res, 'User not found', 404)
       }
@@ -47,14 +37,14 @@ class UserController extends BaseController {
       return this.success(res, 'User updated', updatedUser)
     } catch (error) {
       console.error(error)
-      return this.error(res, 'Failed to update user', 500)
+      return this.error(res, error.message || 'Failed to update user', 500)
     }
   }
 
   async deleteUser(req, res) {
     try {
       const { id } = req.params
-      const affectedRows = await User.delete(id)
+      const affectedRows = await UserService.deleteUser(id)
       if (!affectedRows) {
         return this.error(res, 'User not found', 404)
       }
